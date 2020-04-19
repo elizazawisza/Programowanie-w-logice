@@ -1,62 +1,82 @@
 pojedyncze_wyrazenie(X) :-
   X =.. [_].
 
+additionZeroLeft(X, +, Y, Y) :-
+  number(X), X =:= 0.
 
-dzielenie1(X1*Y1, /, Y1, X1). 
-dzielenie2(X1*Y1, /, 1, X1*Y1).
-dzielenie3(X1*Y1, /, X1, Y1).
-
-mnozenie4(0, *, Y, 0) :-number(Y), Y =:= 0.
-mnozenie3(X, *, 0, 0) :- number(X), X =:= 0.
-mnozenie1(X, *, 1, X).
-mnozenie2(1, *, Y, Y).
-
-mnozenie(X, *, Y, X*Y).
+additionZeroRight(X, +, Y, X) :-
+  number(Y), Y =:= 0.
 
 
-dzielenie(X, /, Y, X/Y).
+subtraction(X, -, X, 0).
 
 
-dodawanie(X, +, Y, X+Y).
-dodawanie2(X, +, 0, X).
-dodawanie3(0, +, Y, Y).
+multiplicationZero(X, *, Y, 0) :-
+  number(X), X =:= 0;
+  number(Y), Y =:= 0.
 
-odejmowanie(X, -, Y, X-Y).
-odejmowanie2(X, -, X, 0).
-odejmowanie3(X, -, 0, X).
+multiplicationOneLeft(X, *, Y, Y) :-
+  number(X), X =:= 1.
 
+multiplicationZeroRight(X, *, Y, X) :-
+  number(Y), Y =:= 1.
+
+
+divisionOne(X, /, Y, X) :-
+  Y =:= 1.
+
+divisionProduct(X, /, Y, 1) :-
+  X = Y.
+
+divisionProduct(X, /, Y, R) :-
+  \+ pojedyncze_wyrazenie(X),
+  X =.. [*, XX, YX],
+  (
+      divisionProduct(XX, /, Y, R);
+      divisionProduct(YX, /, Y, R)
+  ).
 
 oblicz(X, F, Y, R) :-
+  writeln("hej poczatek"),
   write("Y::::"),writeln(Y),
   write("X::::"),writeln(X),
+  write("F::::"),writeln(F),
+  write("R::::"),writeln(R),
   writeln(""),
+
+  (   F = - ->
+    writeln("nooo");
+write("????")
+),
+
 
   (   F = * ->
     writeln('Hej TO JA XD.'),
     writeln(X),
-    mnozenie(X, F, Y, R),
-    write(R);
-    (F = / ->
-      dzielenie(X, F, Y, R), !;
-      dzielenie1(X, F, Y, R), !;
-      dzielenie2(X, F, Y, R), !;
-      dzielenie3(X, F, Y, R), !;
-      writeln('jestem dzieleniem'),
-      writeln(X),
+    multiplicationZero(X, F, Y, R), !;
+    multiplicationOneLeft(X, F, Y, R), !;
+    multiplicationZeroRight(X, F, Y, R), !;
+    write("mnoze");
+    (F = / ->(
+      divisionProduct(X, F, Y, R), !;
+      divisionOne(X, F, Y, R), !;
+%       writeln('jestem dzieleniem'),
+%       writeln(X),
+%       writeln(Y),
+%       writeln(R),
+%       writeln(""),
+writeln('jestem dzieleniem')) ;
+      (F = - -> 
+        subtraction(X, F, Y, R), !;
+      writeln('jestem odejmowanie'),
+            writeln(X),
       writeln(Y),
-      writeln(""),
-    
-writeln('jestem dzieleniem');
-      (F = - ->(
-        odejmowanie(X, F, Y, R), !;
-        odejmowanie2(X, F, Y, R), !;
-        odejmowanie3(X, F, Y, R), !;
-      writeln('jestem odejmowanie')
-      );
+      writeln(R),
+      writeln("")
+      ;
         (F = + ->(
-          dodawanie(X,F, Y, R), !; 
-          dodawanie2(X,F, Y, R), !; 
-          dodawanie3(X,F, Y, R), !; 
+          additionZeroLeft(X, F, Y, R), !;
+    additionZeroRight(X, F, Y, R), !;
           writeln('jestem dodawanie')
           )
 )
@@ -64,7 +84,8 @@ writeln('jestem dzieleniem');
   )), 
   write("Y::::"),writeln(Y),
   write("X::::"),writeln(X),
-  writeln("").
+write("R::::"),writeln(R),
+  writeln("koniec").
 
 
 rozloz_na_czynniki(X, F, Y, R) :-
@@ -86,3 +107,4 @@ simplify(E, E) :- number(E).
 
 simplify(E, R) :-
   E =.. [F, X, Y], rozloz_na_czynniki(X, F, Y, R).
+
